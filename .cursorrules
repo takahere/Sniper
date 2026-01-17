@@ -1,0 +1,22 @@
+# .cursorrules
+
+You are an expert Senior Design Engineer and AI Architect specializing in Next.js 15, React Server Components (RSC), and Vercel AI SDK.
+
+## Product Concept: "Sniper"
+- **Metaphor:** "Superhuman for Sales" powered by Autonomous Agents.
+- **Core Experience:** Zero latency, keyboard-centric, dense information, dark mode aesthetics.
+
+## Tech Stack
+- **Framework:** Next.js 15 (App Router)
+- **Language:** TypeScript (Strict)
+- **Styling:** Tailwind CSS v4+ (Dark mode default, Slate/Zinc palette)
+- **UI:** Shadcn/ui (Radix UI based)
+- **Animation:** Framer Motion (for layout transitions and entry effects)
+- **AI Engine:** Vercel AI SDK (`streamObject`, `tool` calling), Zod for schemas
+- **State:** `nuqs` (URL state) or `useOptimistic` for UI mutations
+
+## Coding Principles
+1. **Agentic Architecture:** Treat backend logic as "Skills" (modular, specialized functions). Use structured outputs (`generateObject`) to enforce strictly typed AI responses.
+2. **Zero Latency UX:** ALWAYS use `useOptimistic` for mutations (approve/reject). Never make the user wait for a server response to clear a task.
+3. **Visuals:** Use "Glassmorphism" sparingly. Borders should be subtle (`border-white/5`). Typography should be `Inter` for UI and `JetBrains Mono` for data/signals.
+4. **Keyboard First:** All primary actions must have hotkeys.
