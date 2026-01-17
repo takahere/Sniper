@@ -47,13 +47,18 @@ export function DetailView({
       >
         {/* Header */}
         <div className="flex items-center justify-between gap-4 border-b border-zinc-800 px-6 py-4">
-          <div className="min-w-0 flex-1">
-            <h2 className="truncate font-medium">{email.to[0]?.name}</h2>
-            <p className="truncate text-sm text-zinc-400">{email.to[0]?.email}</p>
-            {email.to[0]?.company && (
-              <p className="truncate text-xs text-zinc-500">{email.to[0].company}</p>
-            )}
-          </div>
+          {(() => {
+            const recipient = email.to[0]
+            return (
+              <div className="min-w-0 flex-1">
+                <h2 className="truncate font-medium">{recipient?.name}</h2>
+                <p className="truncate text-sm text-zinc-400">{recipient?.email}</p>
+                {recipient?.company && (
+                  <p className="truncate text-xs text-zinc-500">{recipient.company}</p>
+                )}
+              </div>
+            )
+          })()}
           <div className="flex flex-shrink-0 items-center gap-1">
             <Button
               variant="ghost"

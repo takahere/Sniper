@@ -140,11 +140,22 @@ export function useAIDraft({
 
           for (const line of lines) {
             if (line.startsWith('data: ')) {
+              const jsonStr = line.slice(6).trim()
+              if (!jsonStr) continue // Skip empty data lines
+
               try {
-                const update: StreamUpdate = JSON.parse(line.slice(6))
+                const update: StreamUpdate = JSON.parse(jsonStr)
                 handleStreamUpdate(update)
-              } catch {
-                // Ignore parse errors for incomplete JSON
+              } catch (parseError) {
+                // Log in development, ignore incomplete JSON chunks in production
+                if (process.env.NODE_ENV === 'development') {
+                  console.warn(
+                    'SSE parse warning:',
+                    parseError,
+                    'Raw:',
+                    jsonStr.slice(0, 100)
+                  )
+                }
               }
             }
           }

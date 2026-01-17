@@ -6,6 +6,19 @@ import type { Signal, SignalType } from '@/types/signal.types'
 import { mockAnalysisData } from '../mocks/analysis.mock'
 import { getConfig, simulateDelay } from '../utils/config'
 
+// Valid signal types for runtime validation
+const VALID_SIGNAL_TYPES: SignalType[] = [
+  'hiring',
+  'funding',
+  'techstack',
+  'expansion',
+  'news',
+]
+
+function isValidSignalType(type: string): type is SignalType {
+  return VALID_SIGNAL_TYPES.includes(type as SignalType)
+}
+
 // Schema for analyst output
 const analysisOutputSchema = z.object({
   signals: z.array(
@@ -31,14 +44,16 @@ export async function analystNode(
     await simulateDelay(700)
 
     const mockData = mockAnalysisData.default
-    const extractedSignals: Signal[] = mockData.signals.map((s, i) => ({
-      id: `extracted-${i}`,
-      type: s.type as SignalType,
-      title: s.title,
-      description: s.description,
-      confidence: s.confidence,
-      detectedAt: new Date(),
-    }))
+    const extractedSignals: Signal[] = mockData.signals
+      .filter((s) => isValidSignalType(s.type))
+      .map((s, i) => ({
+        id: `extracted-${i}`,
+        type: s.type as SignalType,
+        title: s.title,
+        description: s.description,
+        confidence: s.confidence,
+        detectedAt: new Date(),
+      }))
 
     return {
       analysis: {
@@ -88,14 +103,16 @@ export async function analystNode(
   } catch (error) {
     // Fallback to mock on error
     const mockData = mockAnalysisData.default
-    const extractedSignals: Signal[] = mockData.signals.map((s, i) => ({
-      id: `extracted-${i}`,
-      type: s.type as SignalType,
-      title: s.title,
-      description: s.description,
-      confidence: s.confidence,
-      detectedAt: new Date(),
-    }))
+    const extractedSignals: Signal[] = mockData.signals
+      .filter((s) => isValidSignalType(s.type))
+      .map((s, i) => ({
+        id: `extracted-${i}`,
+        type: s.type as SignalType,
+        title: s.title,
+        description: s.description,
+        confidence: s.confidence,
+        detectedAt: new Date(),
+      }))
 
     return {
       analysis: {

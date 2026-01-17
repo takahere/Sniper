@@ -1,36 +1,76 @@
 import { NextRequest } from 'next/server'
+import { z } from 'zod'
 import {
   emailDraftGraph,
   type EmailDraftGraphInput,
   encodeStreamEvent,
   createSSEResponse,
 } from '@/lib/agent'
-import type { Contact } from '@/types/email.types'
-import type { Signal } from '@/types/signal.types'
+
+// Request validation schema
+const draftRequestSchema = z.object({
+  contact: z.object({
+    id: z.string(),
+    email: z.string().email(),
+    name: z.string(),
+    company: z.string().optional(),
+    title: z.string().optional(),
+    avatarUrl: z.string().optional(),
+  }),
+  signals: z
+    .array(
+      z.object({
+        id: z.string(),
+        type: z.enum(['hiring', 'funding', 'techstack', 'expansion', 'news']),
+        title: z.string(),
+        description: z.string(),
+        confidence: z.number().min(0).max(100),
+        detectedAt: z.coerce.date(),
+        source: z.string().optional(),
+        sourceUrl: z.string().optional(),
+        metadata: z.record(z.string(), z.unknown()).optional(),
+      })
+    )
+    .default([]),
+  context: z.string().optional(),
+})
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { contact, signals, context } = body as {
-      contact: Contact
-      signals: Signal[]
-      context?: string
+
+    // Validate request body
+    const parseResult = draftRequestSchema.safeParse(body)
+    if (!parseResult.success) {
+      return new Response(
+        JSON.stringify({
+          error: 'Invalid request body',
+          details: parseResult.error.flatten(),
+        }),
+        {
+          status: 400,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      )
     }
 
-    const input = {
+    const { contact, signals, context } = parseResult.data
+
+    const input: EmailDraftGraphInput = {
       contact,
-      inputSignals: signals || [],
+      inputSignals: signals,
       userContext: context || '',
-    } satisfies EmailDraftGraphInput
+    }
 
     const stream = new ReadableStream({
       async start(controller) {
         try {
           // Stream graph execution
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const graphStream = await emailDraftGraph.stream(input as any, {
-            streamMode: 'updates',
-          })
+          // LangGraph's stream method accepts partial input and merges with annotation defaults
+          const graphStream = await emailDraftGraph.stream(
+            input as Parameters<typeof emailDraftGraph.stream>[0],
+            { streamMode: 'updates' }
+          )
           for await (const event of graphStream) {
             // Event is { nodeName: stateUpdate }
             const entries = Object.entries(event)
