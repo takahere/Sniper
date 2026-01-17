@@ -1,6 +1,6 @@
 import { generateObject } from 'ai'
 import { anthropic } from '@ai-sdk/anthropic'
-import { aiDraftSchema, type AIDraft } from '@/schemas/ai-output.schema'
+import { aiDraftSchema } from '@/schemas/ai-output.schema'
 import type { AgentState } from '../state'
 import type { Signal } from '@/types/signal.types'
 import { mockAIDrafts } from '@/mocks/ai-responses.mock'

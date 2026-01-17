@@ -55,7 +55,7 @@ export function EmailListItem({
 
         {/* Company */}
         {email.to[0]?.company && (
-          <p className="text-xs text-zinc-500">{email.to[0].company}</p>
+          <p className="text-xs text-zinc-500">{email.to[0]?.company}</p>
         )}
 
         {/* Subject */}

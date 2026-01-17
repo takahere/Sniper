@@ -22,12 +22,17 @@ export function useKeyboardNavigation<T>({
     itemsRef.current = items
   }, [items])
 
-  // Reset focus when items change
+  // Reset focus when items are removed and current index is out of bounds
+  // This is a valid use case: adjusting index when list shrinks
   useEffect(() => {
-    if (focusedIndex >= items.length && items.length > 0) {
-      setFocusedIndex(Math.max(0, items.length - 1))
-    }
-  }, [items.length, focusedIndex])
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- Necessary to keep index in bounds when items are removed
+    setFocusedIndex((prev) => {
+      if (prev >= items.length && items.length > 0) {
+        return Math.max(0, items.length - 1)
+      }
+      return prev
+    })
+  }, [items.length])
 
   // Navigate down with 'j'
   useHotkeys(
@@ -36,7 +41,7 @@ export function useKeyboardNavigation<T>({
       setFocusedIndex((prev) => Math.min(prev + 1, itemsRef.current.length - 1))
     },
     { enabled, preventDefault: true },
-    [items.length]
+    [items.length, enabled]
   )
 
   // Navigate up with 'k'
@@ -46,7 +51,7 @@ export function useKeyboardNavigation<T>({
       setFocusedIndex((prev) => Math.max(prev - 1, 0))
     },
     { enabled, preventDefault: true },
-    []
+    [enabled]
   )
 
   // Select with Enter
